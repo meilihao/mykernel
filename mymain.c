@@ -41,7 +41,7 @@ void __init my_start_kernel(void)
 	    task[i].thread.sp = (unsigned long)(&task[i].stack[KERNEL_STACK_SIZE-1]);
         task[i].next = task[i-1].next;
         task[i-1].next = &task[i];
-    }
+    } // next point result: 0 -> 1 -> 2 -> 3 -> 0
     /* start process 0 by task[0] */
     pid = 0;
     my_current_task = &task[pid];
