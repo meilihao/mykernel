@@ -54,18 +54,18 @@ void my_schedule(void)
     {        
     	my_current_task = next; 
     	printk(KERN_NOTICE ">>>switch %d to %d<<<\n",prev->pid,next->pid);  
-    	/* switch to next process */
+        /* switch to next process */ // 可看https://mp.weixin.qq.com/s/SzpN1BNty5aPDZhNdCO5yA底部的视频讲解
     	asm volatile(	
         	"pushq %%rbp\n\t" 	    /* save rbp of prev */
         	"movq %%rsp,%0\n\t" 	/* save rsp of prev */
         	"movq %2,%%rsp\n\t"     /* restore  rsp of next */
-        	"movq $1f,%1\n\t"       /* save rip of prev */	
+            "movq $1f,%1\n\t"       /* save rip of prev */	// $1表示标号1位置的指令地址. f表示向后查找, 同理b表示向前查找.
         	"pushq %3\n\t" 
         	"ret\n\t" 	            /* restore  rip of next */
-        	"1:\t"                  /* next process start here */
+            "1:\t"                  /* next process start here */  // 标号1
         	"popq %%rbp\n\t"
-        	: "=m" (prev->thread.sp),"=m" (prev->thread.ip)
-        	: "m" (next->thread.sp),"m" (next->thread.ip)
+            : "=m" (prev->thread.sp),"=m" (prev->thread.ip) // "=m"表示写入内存变量
+            : "m" (next->thread.sp),"m" (next->thread.ip) // 输入部分是只读, m表示读取内存值
     	); 
     }  
     return;	
