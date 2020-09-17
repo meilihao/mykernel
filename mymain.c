@@ -45,14 +45,15 @@ void __init my_start_kernel(void)
     /* start process 0 by task[0] */
     pid = 0;
     my_current_task = &task[pid];
-	asm volatile(
-    	"movq %1,%%rsp\n\t" 	/* set task[pid].thread.sp to rsp */
-    	"pushq %1\n\t" 	        /* push rbp */
-    	"pushq %0\n\t" 	        /* push task[pid].thread.ip */
-    	"ret\n\t" 	            /* pop task[pid].thread.ip to rip */
-    	: 
-    	: "c" (task[pid].thread.ip),"d" (task[pid].thread.sp)	/* input c or d mean %ecx/%edx*/
-	);
+    // 为什么不包含下面那段汇编时, bzImage运行时不崩溃, 而包含了且my_process不是死循环时会崩溃, 推测: 因为内嵌汇编中的ret导致my_start_kernel提前结束引发堆栈错误(反汇编my_start_kernel出现两个retq).
+    asm volatile(
+        "movq %1,%%rsp\n\t"     /* set task[pid].thread.sp to rsp */
+        "pushq %1\n\t"          /* push rbp */
+        "pushq %0\n\t"          /* push task[pid].thread.ip */
+        "ret\n\t"               /* pop task[pid].thread.ip to rip */
+        :
+        : "c" (task[pid].thread.ip),"d" (task[pid].thread.sp)   /* input c or d mean %ecx/%edx*/
+    );
 } 
 
 int i = 0;
